@@ -1,4 +1,4 @@
-from database import get_db
+from Backend.database import get_db
 
 def get_by_subcategory(subcat):
     db = get_db()
