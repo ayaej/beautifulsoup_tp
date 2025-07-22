@@ -4,7 +4,7 @@ def get_db():
     """
     Connexion à la base MongoDB locale.
     """
-    client = MongoClient("mongodb://localhost:27017/")
+    client = MongoClient("mongodb://mongo:27017/")
     db = client["tp_bs4"]
     return db
 
