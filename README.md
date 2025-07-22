@@ -5,6 +5,7 @@ Projet complet réalisé dans le cadre d'un TP sur le scraping web avec Beautifu
 * un scraper Python + MongoDB
 * une API Flask REST
 * une interface React moderne et stylisée
+* une configuration Docker pour exécution isolée
 
 ---
 
@@ -14,11 +15,11 @@ Projet complet réalisé dans le cadre d'un TP sur le scraping web avec Beautifu
 beautifulsoup_tp/
 ├── Backend/                      # Scraper, base MongoDB et API Flask
 │   ├── scraper.py               # Récupération des articles
-│   ├── database.py              # Connexion MongoDB
+│   ├── database.py              # Connexion MongoDB (via Docker)
 │   ├── filters.py               # Requêtes Mongo pour les filtres
 │   ├── api.py                   # Routes Flask
 │   ├── main.py                  # Lancement du scraping
-│   └── test.py                  # (Facultatif) tests simples
+│   └── requirements.txt        # Dépendances Python
 │
 ├── tp-beautifulsoup4-front/    # Application React
 │   ├── src/
@@ -28,25 +29,53 @@ beautifulsoup_tp/
 │   │   └── api.js               # Appels vers l'API Flask
 │   └── public/                 # Fichiers statiques
 │
+├── docker-compose.yml          # Configuration Docker (MongoDB + Flask API)
 └── README.md                   # Documentation
 ```
 
 ---
 
-## ⚙️ Installation
+## ⚙️ Installation (avec Docker)
 
-### Backend (Python)
+### 1. Prérequis
+
+* [Docker](https://www.docker.com/) et [Docker Compose](https://docs.docker.com/compose/install/) installés
+
+### 2. Lancer le projet
 
 ```bash
-cd Backend
-python -m venv .venv
-source .venv/bin/activate  # ou .venv\Scripts\activate sous Windows
-pip install -r requirements.txt
+cd beautifulsoup_tp
+
+docker-compose up --build
 ```
 
-🔧 Assure-toi d’avoir un serveur MongoDB local ou distant.
+* Cela lance **MongoDB** (port 27017) et l'**API Flask** (port 5000)
+* L’API sera disponible sur : [http://localhost:5000/articles](http://localhost:5000/articles)
 
-### Frontend (React)
+### 3. Lancer le scraping dans le conteneur
+
+```bash
+docker-compose exec backend python main.py
+```
+
+Les articles seront insérés dans la base Mongo (service `mongo`)
+
+---
+
+## 📡 API Flask
+
+L'API est démarrée automatiquement par Docker.
+
+### Endpoints :
+
+* `GET /articles` : liste des articles
+* Filtres : `title`, `author`, `subcategory`, `startDate`, `endDate`
+
+---
+
+## 🗄️ Interface React (facultatif si déployée à part)
+
+Lancer en local :
 
 ```bash
 cd tp-beautifulsoup4-front
@@ -54,52 +83,37 @@ npm install
 npm start
 ```
 
----
-
-## 🕸️ Scraping
-
-Lancement manuel depuis `main.py` :
-
-```bash
-cd Backend
-python main.py
-```
-
-➡️ Cela récupère les articles depuis plusieurs pages et les enregistre dans MongoDB.
-
----
-
-## 🔌 API Flask
-
-Pour lancer le serveur Flask :
-
-```bash
-cd Backend
-flask run
-```
-
-Par défaut disponible sur `http://localhost:5000`
-
-### Endpoints principaux :
-
-* `/articles?title=...&author=...&subcategory=...&startDate=...&endDate=...`
-
----
-
-## 🖼️ Interface React
-
-Accessible sur `http://localhost:3000`
+Accessible via : [http://localhost:3000](http://localhost:3000)
 
 * Filtres dynamiques : titre, auteur, date, sous-catégorie
-* Cartes d’articles stylées avec vignettes, badges, résumé, etc.
-* Thème moderne 🎨 avec fond animé (CSS custom)
+* Cartes stylées, responsive, avec fond animé
 
 ---
 
-## ✅ À faire / Bonus possibles
+## 📆 Base de données MongoDB
 
-* [ ] Déploiement sur Vercel (front) & Render/Heroku (API)
-* [ ] Pagination des résultats dans le front
+Gérée via Docker avec :
+
+```yaml
+services:
+  mongo:
+    image: mongo:7.0
+    ports:
+      - "27017:27017"
+```
+
+Dans le code, la connexion se fait sur :
+
+```python
+MongoClient("mongodb://mongo:27017/")
+```
+
+---
+
+## ✅ Améliorations possibles
+
+* [ ] Ajouter un conteneur pour le front
+* [ ] Déploiement complet (API + front)
 * [ ] Ajout de tests automatisés
 
 
